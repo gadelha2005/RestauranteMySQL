@@ -64,6 +64,37 @@ public class ReservaDaoJDBC {
             }
         }
     }
+
+    public void removerReserva(int mesaId){
+        PreparedStatement st = null;
+
+        try{
+            st = connection.prepareStatement(
+                "DELETE FROM reserva WHERE mesa_id = ?");
+
+            st.setInt(1, mesaId);
+
+            int rowsAffected = st.executeUpdate();
+
+            if(rowsAffected == 0){
+                throw new DbException("Reserva com o id " + mesaId + " não existe!");
+            }
+
+        }
+        catch(SQLException e){
+            throw new DbException(e.getMessage());
+        }
+        finally{
+            try{
+                if(st != null){
+                    st.close();
+                }
+            }
+            catch(SQLException e){
+                throw new DbException(e.getMessage());
+            }
+        }
+    }
     
 
     public Reserva findByMesaId(int mesaId) {
@@ -71,7 +102,7 @@ public class ReservaDaoJDBC {
         ResultSet rs = null;
     
         try {
-            // Consulta para encontrar uma reserva com base no mesa_id
+           
             st = connection.prepareStatement(
                 "SELECT cliente.id,cliente.nome, cliente.email, cliente.telefone, reserva.mesa_id, reserva.data_reserva, reserva.hora_reserva " +
                 "FROM reserva " +
@@ -81,7 +112,7 @@ public class ReservaDaoJDBC {
             st.setInt(1, mesaId);
             rs = st.executeQuery();
     
-            // Se encontrar uma reserva, retorna o objeto
+           
             if (rs.next()) {
                 Cliente cliente = instatieteCliente(rs);
                 Reserva reserva = instantiateReserva(rs, cliente);
@@ -106,6 +137,83 @@ public class ReservaDaoJDBC {
         }
     }
     
+
+    
+    public List<Reserva> listaReservas(){
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        List<Reserva> reservas = new ArrayList<>();
+
+        try{
+            st = connection.prepareStatement(
+                "SELECT cliente.id, cliente.nome, cliente.email, cliente.telefone, reserva.mesa_id, reserva.data_reserva, reserva.hora_reserva " +
+                "FROM reserva " +
+                "JOIN cliente ON reserva.cliente_id = cliente.id");
+
+            rs = st.executeQuery();
+
+            while(rs.next()){
+                Cliente cliente = instatieteCliente(rs);
+                Reserva reserva = instantiateReserva(rs, cliente);
+
+                reservas.add(reserva);
+            }
+        }
+        catch(SQLException e){
+            throw new DbException(e.getMessage());
+        }
+        finally{
+            try{
+                if(rs != null){
+                    rs.close();
+                }
+                if(st != null){
+                    st.close();
+                }
+            }
+            catch(SQLException e){
+                throw new DbException(e.getMessage());
+            }
+        }
+        return reservas;
+    }
+
+    public void atualizarReserva(Reserva reserva){
+        PreparedStatement st = null;
+
+        try{
+            st = connection.prepareStatement(
+                "UPDATE reserva " + 
+                "SET cliente_id = ?, mesa_id = ?, data_reserva = ?, hora_reserva = ? " +
+                "WHERE id = ?");
+            st.setInt(1, reserva.getCliente().getId());
+            st.setInt(2, reserva.getMesaId());
+            st.setDate(3, java.sql.Date.valueOf(reserva.getDataReserva()));
+            st.setTime(4, java.sql.Time.valueOf(reserva.getHoraReserva()));
+            st.setInt(5, reserva.getCliente().getId());
+
+            int rowsAffected = st.executeUpdate();
+
+            if(rowsAffected == 0){
+                throw new DbException("Erro ao atualizar a reserva!");
+            }
+
+        }
+        catch(SQLException e){
+            throw new DbException(e.getMessage());
+        }   
+        finally{
+            try{
+                if(st != null){
+                    st.close();
+                }
+            }
+            catch(SQLException e){
+                throw new DbException(e.getMessage());
+            }
+        }
+    }
 
     private Cliente instatieteCliente(ResultSet rs) throws SQLException {
         Cliente cliente = new Cliente();
@@ -154,43 +262,4 @@ public class ReservaDaoJDBC {
         }
     }
 
-    public List<Reserva> listaReservas(){
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        List<Reserva> reservas = new ArrayList<>();
-
-        try{
-            st = connection.prepareStatement(
-                "SELECT cliente.id, cliente.nome, cliente.email, cliente.telefone, reserva.mesa_id, reserva.data_reserva, reserva.hora_reserva " +
-                "FROM reserva " +
-                "JOIN cliente ON reserva.cliente_id = cliente.id");
-
-            rs = st.executeQuery();
-
-            while(rs.next()){
-                Cliente cliente = instatieteCliente(rs);
-                Reserva reserva = instantiateReserva(rs, cliente);
-
-                reservas.add(reserva);
-            }
-        }
-        catch(SQLException e){
-            throw new DbException(e.getMessage());
-        }
-        finally{
-            try{
-                if(rs != null){
-                    rs.close();
-                }
-                if(st != null){
-                    st.close();
-                }
-            }
-            catch(SQLException e){
-                throw new DbException(e.getMessage());
-            }
-        }
-        return reservas;
-    }
 }
