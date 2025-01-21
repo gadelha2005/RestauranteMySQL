@@ -61,7 +61,7 @@ public class ClienteDaoJDBC  {
         }
     }
 
-    public Cliente findById(int id){
+    public Cliente findClienteById(int id){
         PreparedStatement st = null;
         ResultSet rs = null;
 
@@ -71,7 +71,7 @@ public class ClienteDaoJDBC  {
             rs = st.executeQuery();
 
             if(rs.next()){
-                Cliente cliente = instantiatieteCliente(rs); 
+                Cliente cliente = instatietCliente(rs); 
                 return cliente;
             }
             return null;
@@ -94,7 +94,7 @@ public class ClienteDaoJDBC  {
         }
     }
 
-    public List<Cliente> findByNameOrEmail(String query) {
+    public List<Cliente> findCLienteByNameOrEmail(String query) {
         PreparedStatement st = null;
         ResultSet rs = null;
     
@@ -108,7 +108,7 @@ public class ClienteDaoJDBC  {
             rs = st.executeQuery();
     
             while (rs.next()) {
-                Cliente cliente = instantiatieteCliente(rs);
+                Cliente cliente = instatietCliente(rs);
                 System.out.println(
                     "Cliente encontrado! Nome = " + cliente.getNome() + " , Id = " + cliente.getId() + 
                     " , Email = " + cliente.getEmail() + " , Telefone = " + cliente.getTelefone()); // Adicionando para depuração
@@ -175,7 +175,7 @@ public class ClienteDaoJDBC  {
 
             int rowsAffected = st.executeUpdate();
             if(rowsAffected  == 0){
-                throw new DbException("Cliente com ID " + id + "não existe");
+                throw new DbException("Cliente com ID " + id + " não existe");
             }
         }
         catch(SQLException e){
@@ -228,7 +228,7 @@ public class ClienteDaoJDBC  {
         }
     }
 
-    private Cliente instantiatieteCliente(ResultSet rs) throws SQLException {
+    private Cliente instatietCliente(ResultSet rs) throws SQLException {
         Cliente cliente = new Cliente();
         cliente.setId(rs.getInt("Id"));
         cliente.setNome(rs.getString("Nome"));

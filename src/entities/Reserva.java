@@ -1,14 +1,22 @@
 package entities;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Reserva {
     private Cliente cliente;
     private int mesaId;
     private LocalDate dataReserva;
+    private LocalTime horaReserva;
 
-    public Reserva(){
+    public Reserva() {
+    }
 
+    public Reserva(Cliente cliente, int mesaId, LocalDate dataReserva, LocalTime horaReserva) {
+        this.cliente = cliente;
+        this.mesaId = mesaId;
+        this.dataReserva = dataReserva;
+        this.horaReserva = horaReserva;
     }
 
     public Cliente getCliente() {
@@ -35,6 +43,14 @@ public class Reserva {
         this.dataReserva = dataReserva;
     }
 
+    public LocalTime getHoraReserva() {
+        return horaReserva;
+    }
+
+    public void setHoraReserva(LocalTime horaReserva) {
+        this.horaReserva = horaReserva;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -42,6 +58,7 @@ public class Reserva {
         result = prime * result + ((cliente == null) ? 0 : cliente.hashCode());
         result = prime * result + mesaId;
         result = prime * result + ((dataReserva == null) ? 0 : dataReserva.hashCode());
+        result = prime * result + ((horaReserva == null) ? 0 : horaReserva.hashCode());
         return result;
     }
 
@@ -66,13 +83,16 @@ public class Reserva {
                 return false;
         } else if (!dataReserva.equals(other.dataReserva))
             return false;
+        if (horaReserva == null) {
+            if (other.horaReserva != null)
+                return false;
+        } else if (!horaReserva.equals(other.horaReserva))
+            return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "Reserva [cliente=" + cliente + ", mesaId=" + mesaId + ", dataReserva=" + dataReserva + "]";
+        return "Reserva [cliente=" + cliente + ", mesaId=" + mesaId + ", dataReserva=" + dataReserva + ", horaReserva=" + horaReserva + "]";
     }
-
-    
 }
