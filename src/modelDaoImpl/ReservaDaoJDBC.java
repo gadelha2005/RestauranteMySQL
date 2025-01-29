@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.spi.DirStateFactory.Result;
+
 
 import db.DbException;
 import entities.Cliente;
@@ -136,7 +136,41 @@ public class ReservaDaoJDBC {
             }
         }
     }
-    
+
+    public void atualizarReserva(Reserva reserva){
+        PreparedStatement st = null;
+
+        try{
+            st = connection.prepareStatement(
+                "UPDATE reserva " +
+                "SET cliente_id = ?, data_reserva = ?, hora_reserva = ? " +
+                "WHERE mesa_id = ?");
+            
+            st.setInt(1, reserva.getCliente().getId());
+            st.setDate(2, java.sql.Date.valueOf(reserva.getDataReserva()));
+            st.setTime(3, java.sql.Time.valueOf(reserva.getHoraReserva()));
+            st.setInt(4, reserva.getMesaId());
+
+            int rowsAffected = st.executeUpdate();
+
+            if(rowsAffected == 0){
+                throw new DbException("Erro Inesperado!");
+            }
+        }
+        catch(SQLException e){
+            throw new DbException(e.getMessage());
+        }
+        finally{
+            try{
+                if(st != null){
+                    st.close();
+                }
+            }
+            catch(SQLException e){
+                throw new DbException(e.getMessage());
+            }
+        }
+    }
 
     
     public List<Reserva> listaReservas(){
@@ -179,41 +213,6 @@ public class ReservaDaoJDBC {
         return reservas;
     }
 
-    public void atualizarReserva(Reserva reserva){
-        PreparedStatement st = null;
-
-        try{
-            st = connection.prepareStatement(
-                "UPDATE reserva " + 
-                "SET cliente_id = ?, mesa_id = ?, data_reserva = ?, hora_reserva = ? " +
-                "WHERE id = ?");
-            st.setInt(1, reserva.getCliente().getId());
-            st.setInt(2, reserva.getMesaId());
-            st.setDate(3, java.sql.Date.valueOf(reserva.getDataReserva()));
-            st.setTime(4, java.sql.Time.valueOf(reserva.getHoraReserva()));
-            st.setInt(5, reserva.getCliente().getId());
-
-            int rowsAffected = st.executeUpdate();
-
-            if(rowsAffected == 0){
-                throw new DbException("Erro ao atualizar a reserva!");
-            }
-
-        }
-        catch(SQLException e){
-            throw new DbException(e.getMessage());
-        }   
-        finally{
-            try{
-                if(st != null){
-                    st.close();
-                }
-            }
-            catch(SQLException e){
-                throw new DbException(e.getMessage());
-            }
-        }
-    }
 
     private Cliente instatieteCliente(ResultSet rs) throws SQLException {
         Cliente cliente = new Cliente();
@@ -233,7 +232,7 @@ public class ReservaDaoJDBC {
         return reserva;
     }
 
-    private boolean isMesaReservada(int mesaId) {
+    public boolean isMesaReservada(int mesaId) {
         PreparedStatement st = null;
         ResultSet rs = null;
     
@@ -244,8 +243,8 @@ public class ReservaDaoJDBC {
     
             rs = st.executeQuery();
             
-            // Se a consulta retornar resultados, a mesa já está reservada
-            return rs.next();  // Retorna true se a mesa já estiver reservada, false caso contrário
+           
+            return rs.next();  
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
         } finally {

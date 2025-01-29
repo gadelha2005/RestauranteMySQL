@@ -197,6 +197,7 @@ public class ClienteDaoJDBC  {
         PreparedStatement st = null;
 
         try{
+
             st = connection.prepareStatement(
                 "UPDATE cliente " +
                 "SET nome = ?, Email = ?, Telefone = ? " +
